@@ -27,12 +27,12 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
     ){
     throw new ApiError(500,"All fields are required")
     }
-    const existingadvocate =await AdvocateModel.findOne(email)
+    const existingadvocate =await AdvocateModel.findOne({email})
     if(existingadvocate){
         throw new ApiError(400,"advocate already registered please go to login page")
     }
-
-    const LocalAvatarPath = req.file?.avatar[0]?.path
+console.log(req.files)
+    const LocalAvatarPath = req.files?.avatar[0]?.path
     if(!LocalAvatarPath){
         throw new ApiError(500, "Avatar file missing")
     }

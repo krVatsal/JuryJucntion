@@ -11,11 +11,11 @@ import { verifyJWTadvocate } from "../middlewares/authAdvocate.middleware.js";
 
  const router =Router()
 
- router.route("/registerAdvocate").post(
+ router.route("/register").post(
    upload.fields([
       {
          name: "avatar",
-         maxCount:1
+         maxCount: 1
       }
    ]),
    registerAdvocate

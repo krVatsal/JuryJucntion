@@ -72,7 +72,7 @@ return res
 })
 
 const logoutClient= asyncHandler(async(req,res)=>{
-    await clientModel.findByIdandUpdate(
+    await clientModel.findByIdAndUpdate(
         req.client._id,
         {
             $unset:{

@@ -5,7 +5,7 @@ import {clientModel} from "../models/client.model.js";
 
 export const verifyJWTclient = asyncHandler(async(req, _, next) => {
     try {
-        const token = req.cookies?.accesstoken 
+        const token = req.cookies?.accessToken 
         console.log(token);
         if (!token) {
             throw new ApiError(401, "Unauthorized request")
