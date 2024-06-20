@@ -1,6 +1,10 @@
 import mongoose, {Schema} from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
+import dotenv from 'dotenv';
+dotenv.config({
+    path: './.env'
+});
 
 const AdvocateSchema = mongoose.Schema({
     name : {
@@ -37,7 +41,8 @@ const AdvocateSchema = mongoose.Schema({
     },
     enrollmentNumber : {
         type : String,
-        required : true
+        required : true,
+        unique: true
     },
     specilization : {
         type : String,
@@ -53,13 +58,18 @@ const AdvocateSchema = mongoose.Schema({
 AdvocateSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password, 10)
+    this.password = bcrypt.hash(this.password, 10)
     next()
 })
 
 AdvocateSchema.methods.isPasswordCorrect = async function(password){
-    return await bcrypt.compare(password, this.password)
-}
+    try {
+       const verifyPass= await bcrypt.compare(password, this.password);
+        return verifyPass
+      } catch (err) {
+        throw new Error(err);
+      }
+    }
 
 AdvocateSchema.methods.generateAccessToken = function(){
     return jwt.sign(

@@ -4,10 +4,11 @@ import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
+import bcrypt from "bcrypt"
 
     const generateAccessAndRefereshTokens = async(userId)=>{
     try {
-           const advocate = await AdvocateModel.findById(AdvocateModel._id)
+           const advocate = await AdvocateModel.findById(userId)
            const accessToken= advocate.generateAccessToken()
            const refreshToken= advocate.generateRefreshToken()
            advocate.refreshToken=refreshToken
@@ -31,17 +32,18 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js"
     if(existingadvocate){
         throw new ApiError(400,"advocate already registered please go to login page")
     }
-console.log(req.files)
+
     const LocalAvatarPath = req.files?.avatar[0]?.path
     if(!LocalAvatarPath){
         throw new ApiError(500, "Avatar file missing")
     }
-    const avatar = uploadOnCloudinary(LocalAvatarPath)
+    const avatar = await uploadOnCloudinary(LocalAvatarPath)
+    console.log(avatar)
     if(!avatar){
         throw new ApiError(401, "Failed to upload image on cloudinary")
     }
 
-    const newadvocate= await AdvocateModel.create({name, email, password, avatar: avatar.url, contact,experience,location,specilization,about,enrollmentNumber })
+    const newadvocate= await AdvocateModel.create({name, email, password, avatar: avatar.url, contact,experience,location,specilization,about,enrollmentNumber, qualification })
     const createdadvocate = await AdvocateModel.findById(newadvocate._id).select(
         "-password -refreshToken"
     )
@@ -49,22 +51,34 @@ console.log(req.files)
         throw new ApiError(400, "Failed to create advocate")
     }
     return res.status(200)
-    .jsom(new ApiResponse(200, createdadvocate, "advocate created successfully"))
+    .json(new ApiResponse(200, createdadvocate, "advocate created successfully"))
     })
     
     const loginAdvocate = asyncHandler(async(req,res)=>{
     const{email, password}= req.body
+    console.log(req.body)
     if([email,password].some((field)=> field?.trim)===""){
         throw new ApiError(500, "All fields are required")
     }
-    const checkadvocate = await AdvocateModel.findOne(email)
+    const checkadvocate = await AdvocateModel.findOne( {email} )
+    // console.log(checkadvocate)
     if(!checkadvocate){
-     throw new ApiError(500, "User is not registered")
+     throw new ApiError(500, "advocate is not registered")
     }
-    const isPasswordCorrect =await isPasswordCorrect(password)
-    if(!isPasswordCorrect){
-     throw new ApiError(500, "Invalid password")
-    }
+
+
+        try {
+            const isPasswordCorrect = await bcrypt.compare(password, checkadvocate.password);
+            if (!isPasswordCorrect) {
+              throw new ApiError(500, "Invalid password");
+          }} catch (err) {
+            throw new Error(err);
+          }
+ 
+    // const correctPass = await checkadvocate.isPasswordCorrect(password)
+    // if(!correctPass){
+    //  throw new ApiError(500, "Invalid password")
+    // }
     
     const{refreshToken,accessToken}= await generateAccessAndRefereshTokens(checkadvocate._id)
     const loggedinadvocate = await AdvocateModel.findById(checkadvocate._id).select("-password -refreshToken")
@@ -82,7 +96,7 @@ console.log(req.files)
     })
     
     const logoutAdvocate= asyncHandler(async(req,res)=>{
-        await AdvocateModel.findByIdandUpdate(
+        await AdvocateModel.findByIdAndUpdate(
             req.advocate._id,
             {
                 $unset:{
@@ -150,8 +164,16 @@ console.log(req.files)
         throw new ApiError(500,"All fields are required")
     }
     const advocate = await AdvocateModel.findById(req.advocate?._id)
-    const isPasswordCorrect = await advocate.isPasswordCorrect(oldPassword)
-    if(!isPasswordCorrect){
+    // const isPasswordCorrect = await advocate.isPasswordCorrect(oldPassword)
+    const correctPass = async function(oldPassword){
+        try {
+           const verifyPass= await bcrypt.compare(oldPassword, this.password);
+            return verifyPass
+          } catch (err) {
+            throw new Error(err);
+          }
+        }
+    if(!correctPass){
         throw new ApiError(500,"Wrong old password entered")
     }
     advocate.password =newPassword
@@ -194,6 +216,9 @@ console.log(req.files)
 
     })
 
+    
+
+
     export {
         loginAdvocate,
         registerAdvocate,
@@ -201,5 +226,7 @@ console.log(req.files)
         changePassword,
         refreshAccessToken,
         generateAccessAndRefereshTokens,
-        changeAvatar
+        changeAvatar,
+        findALawyer,
+        filter
     }

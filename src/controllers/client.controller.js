@@ -1,4 +1,5 @@
 import {clientModel} from "../models/client.model.js";
+import { AdvocateModel } from "../models/Advocate.model.js";
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
@@ -49,7 +50,7 @@ if([email,password].some((field)=> field?.trim)===""){
 }
 const checkClient = await clientModel.findOne({email})
 if(!checkClient){
- throw new ApiError(500, "User is not registered")
+ throw new ApiError(500, "client is not registered")
 }
 const correctPass =await checkClient.isPasswordCorrect(password)
 if(!correctPass){
@@ -151,11 +152,55 @@ return res
 .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
+const findALawyer = asyncHandler(async(req,res)=>{
+    try {
+            const Advocate = {$name:{$search:req.body.name}}
+            if(!Advocate){
+                throw new ApiError(401, "No Advocate Found")
+            }
+            res.send(Advocate)
+    } catch (error) {
+        return res
+         .status(400)
+         .json(400, new ApiError(400, "Some Error occured"))
+    
+    }
+})
+    
+const filter =asyncHandler(async(req,res)=>{
+    try {
+            const{location, experience, specilization}= req.body
+            const Advocate = await AdvocateModel.find({specilization:specilization},{location:location}, {experience:experience})
+            if(!Advocate){
+                throw new ApiError(401, "No Advocates found")
+            }
+            res.send(Advocate)
+    } catch (error) {
+         return res
+         .status(400)
+         .json(400, new ApiError(400, "Some Error occured"))
+    
+    }
+})
+
+// const queries = asyncHandler(async(req,res)=>{
+
+// })
+
+// const blogs = asyncHandler(async(req,res)=>{
+
+// })
+
 export{
     loginClient,
     registerClient,
     logoutClient,
     generateAccessAndRefereshTokens,
     refreshAccessToken,
-    changePassword
+    changePassword,
+    findALawyer,
+    filter,
+    queries,
+    blogs
+
 }
