@@ -32,7 +32,7 @@ import bcrypt from "bcrypt"
     if(existingadvocate){
         throw new ApiError(400,"advocate already registered please go to login page")
     }
-
+console.log(req.files)
     const LocalAvatarPath = req.files?.avatar[0]?.path
     if(!LocalAvatarPath){
         throw new ApiError(500, "Avatar file missing")
@@ -65,7 +65,7 @@ import bcrypt from "bcrypt"
     if(!checkadvocate){
      throw new ApiError(500, "advocate is not registered")
     }
-
+const advocateAvatar= checkadvocate.avatar
 
         try {
             const isPasswordCorrect = await bcrypt.compare(password, checkadvocate.password);
@@ -91,7 +91,7 @@ import bcrypt from "bcrypt"
     .cookie("refreshToken",refreshToken, options)
     .cookie("accessToken",accessToken, options)
     .json(new ApiResponse(200, 
-        {checkadvocate: loggedinadvocate, refreshToken, accessToken}, 
+        {checkadvocate: loggedinadvocate, refreshToken, accessToken, advocateAvatar}, 
         "advocate logged in successfully"))
     })
     
@@ -226,7 +226,5 @@ import bcrypt from "bcrypt"
         changePassword,
         refreshAccessToken,
         generateAccessAndRefereshTokens,
-        changeAvatar,
-        findALawyer,
-        filter
+        changeAvatar
     }

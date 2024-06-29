@@ -29,7 +29,7 @@ const AdvocateSchema = mongoose.Schema({
     },
     location : {
         type : String,
-        enum : ['New Delhi' , 'Prayagraj' , 'Mumbai' , 'Kolkata' , 'Chennai' , 'Banglore']
+        enum : ['New Delhi' , 'Prayagraj' , 'Mumbai' , 'Kolkata' , 'Chennai' , 'Bangalore']
     },
   qualification : {
         type : String,
@@ -58,7 +58,7 @@ const AdvocateSchema = mongoose.Schema({
 AdvocateSchema.pre("save", async function (next) {
     if(!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password, 10)
+    this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 

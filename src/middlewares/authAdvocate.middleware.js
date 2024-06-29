@@ -5,8 +5,8 @@ import {AdvocateModel} from "../models/Advocate.model.js"
 
 export const verifyJWTadvocate = asyncHandler(async(req, _, next) => {
     try {
-        const token = req.cookies?.accessToken 
-        console.log(req.cookies)
+        const token = req.headers.authorization.split(' ')[1]
+        console.log(req)
         console.log(token)
         if (!token) {
             throw new ApiError(401, "Unauthorized request")
