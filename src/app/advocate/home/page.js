@@ -73,17 +73,17 @@ export default function Home() {
         </Link>
       <ul className='flex gap-8 items-center mr-4'>
         <li className="cursor-pointer">
-          <Link href="/resolveQueries">
+          <Link href="/advocate/resolveQueries">
             <div>Queries</div>
           </Link>
         </li>
         <li className="cursor-pointer">
-          <Link href="/postBlogs">
+          <Link href="/advocate/postBlogs">
             <div>Post Blogs</div>
           </Link>
         </li>
         <li className="cursor-pointer">
-          <Link href="/checkApplication">
+          <Link href="/advocate/checkApplication">
             <div>Applications</div>
           </Link>
         </li>

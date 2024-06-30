@@ -69,22 +69,22 @@ const Home = () => {
         </Link>
         <ul className='flex gap-8 items-center mr-4'>
           <li className="cursor-pointer">
-            <Link href="/find-lawyer">
+            <Link href="/client/find-lawyer">
               <div>Find Lawyer</div>
             </Link>
           </li>
           <li className="cursor-pointer">
-            <Link href="/queries">
+            <Link href="/client/queries">
               <div>Queries</div>
             </Link>
           </li>
           <li className="cursor-pointer">
-            <Link href="/blogs">
+            <Link href="/client/blogs">
               <div>Blogs</div>
             </Link>
           </li>
           <li className="cursor-pointer">
-            <Link href="/application-status">
+            <Link href="/client/application-status">
               <div>Application Status</div>
             </Link>
           </li>
