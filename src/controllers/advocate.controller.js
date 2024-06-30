@@ -22,9 +22,9 @@ import bcrypt from "bcrypt"
     }
     
     const registerAdvocate = asyncHandler(async(req,res)=>{
-    const{name,email,password,contact,experience,location,qualification,about,enrollmentNumber,specilization}= req.body
+    const{name,email,password,contact,experience,location,qualification,about,enrollmentNumber,specialization}= req.body
     if(
-        [name,email,password,contact,experience,location,qualification,about,enrollmentNumber,specilization].some((field)=>field?.trim) ===""
+        [name,email,password,contact,experience,location,qualification,about,enrollmentNumber,specialization].some((field)=>field?.trim) ===""
     ){
     throw new ApiError(500,"All fields are required")
     }
@@ -43,7 +43,7 @@ console.log(req.files)
         throw new ApiError(401, "Failed to upload image on cloudinary")
     }
 
-    const newadvocate= await AdvocateModel.create({name, email, password, avatar: avatar.url, contact,experience,location,specilization,about,enrollmentNumber, qualification })
+    const newadvocate= await AdvocateModel.create({name, email, password, avatar: avatar.url, contact,experience,location,specialization,about,enrollmentNumber, qualification })
     const createdadvocate = await AdvocateModel.findById(newadvocate._id).select(
         "-password -refreshToken"
     )
@@ -216,6 +216,23 @@ const advocateAvatar= checkadvocate.avatar
 
     })
 
+    const getDetails = asyncHandler(async(req,res)=>{
+    try {
+    const advocate= await AdvocateModel.findById(req.params.advocate)
+    if(!advocate){
+        return res
+        .status(401)
+        .json(401, {}, "Advocate not found")
+    }
+    res.json({advocate})
+} catch (error) {
+    return res
+    .status(400)
+    .json(400, {}, "Failed to fetch advocate")
+}
+
+    })
+
     
 
 
@@ -226,5 +243,6 @@ const advocateAvatar= checkadvocate.avatar
         changePassword,
         refreshAccessToken,
         generateAccessAndRefereshTokens,
-        changeAvatar
+        changeAvatar,
+        getDetails
     }

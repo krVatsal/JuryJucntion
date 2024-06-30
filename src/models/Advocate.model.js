@@ -44,9 +44,10 @@ const AdvocateSchema = mongoose.Schema({
         required : true,
         unique: true
     },
-    specilization : {
+    specialization : {
         type : String,
-        enum : ['Criminal lawyer' , 'Corporate lawyer' , 'Civil lawyer' , 'Intellectual property lawyer' , 'Tax lawyer' , 'Labour lawyer' , 'Immigration lawyer' , 'Government lawyer' , 'Bankruptcy lawyer']
+        enum : ['Criminal lawyer' , 'Corporate lawyer' , 'Civil lawyer' , 'Intellectual property lawyer' , 'Tax lawyer' , 'Labour lawyer' , 'Immigration lawyer' , 'Government lawyer' , 'Bankruptcy lawyer'],
+        required: true
     },
     avatar:{
         type: String

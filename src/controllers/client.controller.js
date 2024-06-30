@@ -153,36 +153,56 @@ return res
 .json(new ApiResponse(200, {}, "Password changed successfully"))
 })
 
-const findALawyer = asyncHandler(async(req,res)=>{
+const findALawyer = asyncHandler(async (req, res) => {
     try {
-            const Advocate = {$name:{$search:req.body.name}}
-            if(!Advocate){
-                throw new ApiError(401, "No Advocate Found")
-            }
-            res.send(Advocate)
+      const { name } = req.body;
+  
+      if (!name) {
+        throw new ApiError(400, "Name is required");
+      }
+  
+      const advocates = await AdvocateModel.find({ name: { $regex: new RegExp(name, 'i') } });
+  
+      if (advocates.length === 0) {
+        throw new ApiError(404, "No Advocate Found");
+      }
+  
+      res.json({ advocates });
     } catch (error) {
-        return res
-         .status(400)
-         .json(400, new ApiError(400, "Some Error occured"))
-    
+      res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error.message || "Some Error occurred"));
     }
-})
-    
-const filter =asyncHandler(async(req,res)=>{
+  });
+  
+  // Filter advocates based on location, specialization, and experience
+  const filter = asyncHandler(async (req, res) => {
     try {
-            const{location, experience, specilization}= req.body
-            const Advocate = await AdvocateModel.find({specilization:specilization},{location:location}, {experience:experience})
-            if(!Advocate){
-                throw new ApiError(401, "No Advocates found")
-            }
-            res.send(Advocate)
+      const { location, experience, specialization } = req.body;
+  
+      const filters = {};
+  
+      if (location) {
+        filters.location = { $regex: new RegExp(location, 'i') }; // Case-insensitive regex
+      }
+  
+      if (specialization) {
+        filters.specialization = { $regex: new RegExp(specialization, 'i') }; // Case-insensitive regex
+      }
+  
+      if (experience) {
+        filters.experience = { $gte: parseInt(experience, 10) }; // Ensure experience is an integer
+      }
+  
+      const advocates = await AdvocateModel.find(filters);
+  
+      if (advocates.length === 0) {
+        throw new ApiError(404, "No Advocates found");
+      }
+  
+      res.json({ advocates });
     } catch (error) {
-         return res
-         .status(400)
-         .json(400, new ApiError(400, "Some Error occured"))
-    
+      res.status(error.statusCode || 500).json(new ApiError(error.statusCode || 500, error.message || "Some Error occurred"));
     }
-})
+  });
 
 // const queries = asyncHandler(async(req,res)=>{
 

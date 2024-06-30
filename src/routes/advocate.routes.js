@@ -4,7 +4,8 @@ import { Router } from "express";
     registerAdvocate,
     logoutAdvocate,
     changePassword,
-    changeAvatar
+    changeAvatar,
+    getDetails
  } from "../controllers/advocate.controller.js"
  import {upload} from "../middlewares/multer.middleware.js"
 import { verifyJWTadvocate } from "../middlewares/authAdvocate.middleware.js";
@@ -24,6 +25,8 @@ import { verifyJWTadvocate } from "../middlewares/authAdvocate.middleware.js";
  router.route("/logout").post(verifyJWTadvocate, logoutAdvocate)
  router.route("/changePassword").post(verifyJWTadvocate, changePassword)
  router.route("/changeAvatar").post(verifyJWTadvocate, changeAvatar)
+ router.route("/details/:advocate").get(getDetails)
+
 
  export default router
 
