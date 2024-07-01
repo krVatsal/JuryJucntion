@@ -30,12 +30,13 @@ const LoginPage = () => {
         setMessage(res.message);
         console.log(res)
         const clientName = res.data.clientName; // Correctly access clientName from response
+        const clientID = res.data.clientID; // Correctly access clientName from response
 
         // router.push({
         //   pathname: '/client/home',
         //   query: { clientName:clientName},
         // })
-        router.push(`/client/home?clientName=${encodeURIComponent(clientName)}`)
+        router.push(`/client/home?clientName=${encodeURIComponent(clientName)}&clientID=${encodeURIComponent(clientID)}`)
       } else {
         throw new Error(res.error || "Failed to login");
       }

@@ -41,6 +41,7 @@ const AdvocateDetailsPage = () => {
   if (!advocateDetails) {
     return <div>Loading...</div>;
   }
+  localStorage.setItem('advocateID', advocate||" ")
 
   return (
     <div className="min-h-screen bg-gray-300 p-4">

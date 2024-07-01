@@ -9,6 +9,7 @@ const Home = () => {
   const searchParams = useSearchParams();
 
   const [clientName, setClientName] = useState('Client');
+  const [clientID, setClientID] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -22,6 +23,20 @@ const Home = () => {
       }
     // }
   }, []);
+  useEffect(() => {
+    // if (router.isReady) {
+      const clientID = searchParams.get("clientID");
+      console.log(clientID)
+      // const { query } = router;
+      // const clientName = query.clientName;
+      if (clientID) {
+        setClientID(clientID);
+      }
+    // }
+  }, []);
+
+  localStorage.setItem('clientID', clientID);
+
 
 
 

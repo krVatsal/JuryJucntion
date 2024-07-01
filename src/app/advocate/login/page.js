@@ -29,7 +29,8 @@ const login = () => {
         setMessage(res.message);
         console.log(res)
         const avatar= res.data.advocateAvatar
-        router.push(`/advocate/home?avatar=${encodeURIComponent(avatar)}`)
+        const advocateID= res.data.advocateID
+        router.push(`/advocate/home?avatar=${encodeURIComponent(avatar)}&advocateID=${encodeURIComponent(advocateID)}`)
       } else {
         throw new Error(res.error || "Failed to login");
       }

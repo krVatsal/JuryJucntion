@@ -10,6 +10,7 @@ export default function Home() {
   const searchParams = useSearchParams();
   const [message, setMessage] = useState('');
   const [avatar, setAvatar] = useState('Avatar');
+  const [advocateID, setadvocateID] = useState('');
   const router = useRouter();
   const handleLogout = async () => {
    
@@ -61,7 +62,18 @@ export default function Home() {
       }
     // }
   }, []);
+  useEffect(() => {
+    // if (router.isReady) {
+      const advocateID = searchParams.get("advocateID");
 
+      // const { query } = router;
+      // const clientName = query.clientName;
+      if (advocateID) {
+        setadvocateID(advocateID);
+      }
+    // }
+  }, []);
+localStorage.setItem("advocateID", advocateID||" ")
 
   return (
     <div>
