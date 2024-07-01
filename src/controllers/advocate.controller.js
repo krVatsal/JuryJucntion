@@ -1,10 +1,12 @@
 import {AdvocateModel} from "../models/Advocate.model.js"
+import { queryModel } from "../models/Query.model.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import bcrypt from "bcrypt"
+import mongoose from "mongoose"
 
     const generateAccessAndRefereshTokens = async(userId)=>{
     try {
@@ -66,6 +68,7 @@ console.log(req.files)
      throw new ApiError(500, "advocate is not registered")
     }
 const advocateAvatar= checkadvocate.avatar
+const advocateID= checkadvocate._id
 
         try {
             const isPasswordCorrect = await bcrypt.compare(password, checkadvocate.password);
@@ -91,7 +94,7 @@ const advocateAvatar= checkadvocate.avatar
     .cookie("refreshToken",refreshToken, options)
     .cookie("accessToken",accessToken, options)
     .json(new ApiResponse(200, 
-        {checkadvocate: loggedinadvocate, refreshToken, accessToken, advocateAvatar}, 
+        {checkadvocate: loggedinadvocate, refreshToken, accessToken, advocateAvatar, advocateID}, 
         "advocate logged in successfully"))
     })
     
@@ -232,6 +235,44 @@ const advocateAvatar= checkadvocate.avatar
 }
 
     })
+    const applications= asyncHandler(async(req,res)=>{
+        const advocateId= req.headers.advocateid
+ const advocate = await AdvocateModel.findById(advocateId)
+ if(!advocate){
+    throw new ApiError(400, "Not valid advocate")
+ }
+ const applications=[]
+ const application= await queryModel.find({advocateId})
+ applications.push(application)
+ return res.status(200).json(new ApiResponse(200, {applications} , "Fetched applications successfully"))
+    })
+
+    const statusUpdate =asyncHandler(async (req, res) => {
+
+        const { id } = req.params;
+        const { status } = req.body;
+        const advocateId = req.headers.advocateid; // Get advocateId from headers
+
+        // Validate application ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+          throw new ApiError(400, 'Invalid application ID');
+        }
+      
+        // Validate status (assuming only 'Accepted' or 'Rejected' are valid)
+        if (status !== 'Accepted' && status !== 'Rejected') {
+          throw new ApiError(400, 'Invalid status');
+        }
+      
+        // Update application status
+        const updatedApplication = await queryModel.findByIdAndUpdate(id, { status }, { new: true });
+      
+        if (!updatedApplication) {
+          throw new ApiError(404, 'Application not found');
+        }
+      
+        // Respond with updated application data
+        return res.status(200).json(new ApiResponse(200, updatedApplication, `Application ${status.toLowerCase()} successfully`));
+      });
 
     
 
@@ -244,5 +285,7 @@ const advocateAvatar= checkadvocate.avatar
         refreshAccessToken,
         generateAccessAndRefereshTokens,
         changeAvatar,
-        getDetails
+        getDetails,
+        applications,
+        statusUpdate
     }

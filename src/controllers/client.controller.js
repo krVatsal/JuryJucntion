@@ -57,7 +57,7 @@ if(!correctPass){
  throw new ApiError(500, "Invalid password")
 }
 const clientName= checkClient.name
-
+const clientID= checkClient._id
 const{refreshToken,accessToken}= await generateAccessAndRefereshTokens(checkClient._id)
 const loggedinClient = await clientModel.findById(checkClient._id).select("-password -refreshToken")
 const options = {
@@ -69,7 +69,7 @@ return res
 .cookie("refreshToken",refreshToken, options)
 .cookie("accessToken",accessToken, options)
 .json(new ApiResponse(200, 
-    {checkClient: loggedinClient, refreshToken, accessToken, clientName}, 
+    {checkClient: loggedinClient, refreshToken, accessToken, clientName, clientID}, 
     "Client logged in successfully"))
 })
 

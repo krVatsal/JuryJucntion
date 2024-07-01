@@ -2,13 +2,11 @@ import mongoose, {Schema} from "mongoose";
 
 const querySchema = mongoose.Schema({
     clientId :{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'users',
+        type : String,
         required : true
     },
-    AdvocatId :{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'lawyers',
+    advocateId :{
+        type : String,
         required : true
     },
     name :{
@@ -31,8 +29,11 @@ const querySchema = mongoose.Schema({
     about_the_case : {
         type : String,
         required : true
+    },
+    status : {
+        type : String,
     }
-},{timespamps : true})
+},{timestamps : true})
 
 export const queryModel = mongoose.model('queryModel',querySchema);
 
