@@ -10,6 +10,7 @@ const Home = () => {
 
   const [clientName, setClientName] = useState('Client');
   const [clientID, setClientID] = useState('');
+  const [advocates, setAdvocates] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -73,6 +74,31 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    fetchAdvocates();
+  }, []);
+
+  const fetchAdvocates = async () => {
+    try {
+      const response = await fetch('http://localhost:5217/api/v1/advocate/get', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch advocates');
+      }
+
+      const data = await response.json();
+      setAdvocates(data.data.advocates);
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching advocates:', error);
+    }
+  };
+
   return (
     <div>
       
@@ -99,7 +125,7 @@ const Home = () => {
             </Link>
           </li>
           <li className="cursor-pointer">
-            <Link href="/client/application-status">
+            <Link href="/query/status">
               <div>Application Status</div>
             </Link>
           </li>
@@ -120,17 +146,17 @@ const Home = () => {
           <h1 className="text-white font-bold text-xl text-center pb-5">Meet some of our top Advocates</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {/* Sample Advocate Cards */}
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
+            {advocates.map((advocate) => (
+              <div key={advocate._id} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
                 <img
                   className="rounded-full w-20 h-20 mx-auto"
-                  src="https://img.freepik.com/free-photo/medium-shot-man-working-as-lawyer_23-2151054001.jpg"
+                  src={advocate.avatar}
                   alt="Lawyer"
                 />
-                <h2 className="text-sm text-center">Sanjeev Tripathi</h2>
-                <p className="text-xs text-center">New Delhi</p>
-                <p className="text-xs text-center">Criminal Lawyer</p>
-                <button className="btn-primary mx-auto">More</button>
+                <h2 className="text-sm text-center">{advocate.name}</h2>
+                <p className="text-xs text-center">{advocate.location}</p>
+                <p className="text-xs text-center">{advocate.specialization}</p>
+                <button onClick={() => window.location.href = `/advocate/details?advocate=${encodeURIComponent(advocate._id)}`} className="btn-primary mx-auto">More</button>
               </div>
             ))}
           </div>

@@ -6,14 +6,14 @@ import { useSearchParams } from "next/navigation";
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
-
   const searchParams = useSearchParams();
   const [message, setMessage] = useState('');
   const [avatar, setAvatar] = useState('Avatar');
   const [advocateID, setadvocateID] = useState('');
+  const [advocates, setAdvocates] = useState([]);
   const router = useRouter();
+
   const handleLogout = async () => {
-   
     const confirmLogout = confirm("Are you sure you want to logout?");
     if (confirmLogout) {
       try {
@@ -41,7 +41,6 @@ export default function Home() {
             setMessage('');
           }, 2000);
           router.push('/');
-
         } else {
           throw new Error("Failed to logout");
         }
@@ -52,64 +51,80 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // if (router.isReady) {
-      const avatar = searchParams.get("avatar");
-
-      // const { query } = router;
-      // const clientName = query.clientName;
-      if (avatar) {
-        setAvatar(avatar);
-      }
-    // }
+    const avatar = searchParams.get("avatar");
+    if (avatar) {
+      setAvatar(avatar);
+    }
   }, []);
+
   useEffect(() => {
-    // if (router.isReady) {
-      const advocateID = searchParams.get("advocateID");
+    const advocateID = searchParams.get("advocateID");
+    if (advocateID) {
+      setadvocateID(advocateID);
+    }
+    localStorage.setItem("advocateID", advocateID || " ");
+  }, [searchParams]);
 
-      // const { query } = router;
-      // const clientName = query.clientName;
-      if (advocateID) {
-        setadvocateID(advocateID);
-      }
-    // }
+  useEffect(() => {
+    fetchAdvocates();
   }, []);
-localStorage.setItem("advocateID", advocateID||" ")
+
+  const fetchAdvocates = async () => {
+    try {
+      const response = await fetch('http://localhost:5217/api/v1/advocate/get', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch advocates');
+      }
+
+      const data = await response.json();
+      setAdvocates(data.data.advocates);
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching advocates:', error);
+    }
+  };
 
   return (
     <div>
-<nav className='bg-[#00091d] text-gray-300 flex items-center justify-between h-16'>
-<Link href="/">
-        <div className="logo size-12 ml-4 flex items-center cursor-pointer">
-          <img className='' src="../JUDICIALJURYLOGO.png" alt="JuryJunction" />
-        </div>
+      <nav className='bg-[#00091d] text-gray-300 flex items-center justify-between h-16'>
+        <Link href="/">
+          <div className="logo size-12 ml-4 flex items-center cursor-pointer">
+            <img className='' src="../JUDICIALJURYLOGO.png" alt="JuryJunction" />
+          </div>
         </Link>
-      <ul className='flex gap-8 items-center mr-4'>
-        <li className="cursor-pointer">
-          <Link href="/advocate/resolveQueries">
-            <div>Queries</div>
-          </Link>
-        </li>
-        <li className="cursor-pointer">
-          <Link href="/advocate/postBlogs">
-            <div>Post Blogs</div>
-          </Link>
-        </li>
-        <li className="cursor-pointer">
-          <Link href="/advocate/checkApplication">
-            <div>Applications</div>
-          </Link>
-        </li>
-      </ul>
-      <div className="cursor-pointer rounded-full bg-white p-1" onClick={handleLogout}>
-  <img
-    src={avatar}
-    alt=""
-    className="rounded-full w-12 h-12 object-cover"
-  />
-   {message && <p>{message}</p>}
-</div>
-    </nav>
-<Line/>
+        <ul className='flex gap-8 items-center mr-4'>
+          <li className="cursor-pointer">
+            <Link href="/advocate/resolveQueries">
+              <div>Queries</div>
+            </Link>
+          </li>
+          <li className="cursor-pointer">
+            <Link href="/advocate/postBlogs">
+              <div>Post Blogs</div>
+            </Link>
+          </li>
+          <li className="cursor-pointer">
+            <Link href="/advocate/checkApplication">
+              <div>Applications</div>
+            </Link>
+          </li>
+        </ul>
+        <div className="cursor-pointer rounded-full bg-white p-1" onClick={handleLogout}>
+          <img
+            src={avatar}
+            alt=""
+            className="rounded-full w-12 h-12 object-cover"
+          />
+          {message && <p>{message}</p>}
+        </div>
+      </nav>
+      <Line />
 
       <div className="p-10">
         <h1 className="text-white font-bold text-5xl text-center pt-20">JuryJunction</h1>
@@ -120,18 +135,17 @@ localStorage.setItem("advocateID", advocateID||" ")
         <section className="pt-10">
           <h1 className="text-white font-bold text-xl text-center pb-5">Meet some of our top Advocates</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {/* Sample Advocate Cards */}
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
+            {advocates.map((advocate) => (
+              <div key={advocate._id} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
                 <img
                   className="rounded-full w-20 h-20 mx-auto"
-                  src="https://img.freepik.com/free-photo/medium-shot-man-working-as-lawyer_23-2151054001.jpg"
+                  src={advocate.avatar}
                   alt="Lawyer"
                 />
-                <h2 className="text-sm text-center">Sanjeev Tripathi</h2>
-                <p className="text-xs text-center">New Delhi</p>
-                <p className="text-xs text-center">Criminal Lawyer</p>
-                <button className="btn-primary mx-auto">More</button>
+                <h2 className="text-sm text-center">{advocate.name}</h2>
+                <p className="text-xs text-center">{advocate.location}</p>
+                <p className="text-xs text-center">{advocate.specialization}</p>
+                <button onClick={() => window.location.href = `/advocate/details?advocate=${encodeURIComponent(advocate._id)}`} className="btn-primary mx-auto">More</button>
               </div>
             ))}
           </div>

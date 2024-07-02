@@ -1,13 +1,37 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Line from "./components/Line";
 
 export default function Home() {
   const [selected, setSelected] = useState("client");
+  const [advocates, setAdvocates] = useState([]);
 
   const handleSelectChange = (value) => {
     setSelected(value);
+  };
+  useEffect(() => {
+    fetchAdvocates();
+  }, []);
+  const fetchAdvocates = async () => {
+    try {
+      const response = await fetch('http://localhost:5217/api/v1/advocate/get', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch advocates');
+      }
+
+      const data = await response.json();
+      setAdvocates(data.data.advocates);
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching advocates:', error);
+    }
   };
 
   return (
@@ -59,17 +83,17 @@ export default function Home() {
           <h1 className="text-white font-bold text-xl text-center pb-5">Meet some of our top Advocates</h1>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {/* Sample Advocate Cards */}
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
+            {advocates.map((advocate) => (
+              <div key={advocate._id} className="bg-blue-900 text-white rounded-md p-4 flex flex-col gap-2">
                 <img
                   className="rounded-full w-20 h-20 mx-auto"
-                  src="https://img.freepik.com/free-photo/medium-shot-man-working-as-lawyer_23-2151054001.jpg"
+                  src={advocate.avatar}
                   alt="Lawyer"
                 />
-                <h2 className="text-sm text-center">Sanjeev Tripathi</h2>
-                <p className="text-xs text-center">New Delhi</p>
-                <p className="text-xs text-center">Criminal Lawyer</p>
-                <button className="btn-primary mx-auto">More</button>
+                <h2 className="text-sm text-center">{advocate.name}</h2>
+                <p className="text-xs text-center">{advocate.location}</p>
+                <p className="text-xs text-center">{advocate.specialization}</p>
+                <button onClick={() => window.location.href = `/advocate/details?advocate=${encodeURIComponent(advocate._id)}`} className="btn-primary mx-auto">More</button>
               </div>
             ))}
           </div>
