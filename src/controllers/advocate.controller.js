@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import bcrypt from "bcrypt"
 import mongoose from "mongoose"
+import { questionModel } from "../models/questions.model.js"
 
     const generateAccessAndRefereshTokens = async(userId)=>{
     try {
@@ -274,7 +275,53 @@ const advocateID= checkadvocate._id
         return res.status(200).json(new ApiResponse(200, updatedApplication, `Application ${status.toLowerCase()} successfully`));
       });
 
+    const getQuestions = asyncHandler(async(req,res)=>{
+     const advocateID = req.headers.advocateid
+     if(!advocateID){
+        throw new ApiError(400, "failed to get advocate id")
+     }
+     const advocate = await AdvocateModel.findById(advocateID)
+     if(!advocate){
+        throw new ApiError(400, "invalid advocate id")
+     }
+     const advocateType = advocate.specialization
+     const questions = await questionModel.find({advocateType})
+     if(!questions){
+        throw new ApiError(400, "failed to get questions")
+     }
+     console.log(advocateType,questions)
+     return res.status(200).json(new ApiResponse(200, questions, "Questions fetched successfully"))
+
+
+    })
+
+    const postAnswer = asyncHandler(async (req, res) => {
+        const { questionId } = req.params;
+        const { answer } = req.body;
+      
+        try {
+          const updatedQuestion = await questionModel.findByIdAndUpdate(questionId, { answer }, { new: true });
+      
+          if (!updatedQuestion) {
+            return res.status(404).json({ success: false, message: 'Question not found' });
+          }
+      
+          res.status(200).json({ success: true, data: updatedQuestion });
+        } catch (error) {
+          console.error('Error updating answer:', error);
+          res.status(500).json({ success: false, message: 'Failed to update answer' });
+        }
+      })
     
+      const showAdvocates = asyncHandler(async(req,res)=>{
+        const advocates= await AdvocateModel.find().limit(8)
+        console.log(advocates)
+        if(!advocates){
+            throw new ApiError(400, "Failed to fetch advocates")
+        }
+ 
+        return res.status(200).json(new ApiResponse(200, {advocates}, "Sent advocates successfully"))
+      })
 
 
     export {
@@ -287,5 +334,8 @@ const advocateID= checkadvocate._id
         changeAvatar,
         getDetails,
         applications,
-        statusUpdate
+        statusUpdate,
+        getQuestions,
+        postAnswer,
+        showAdvocates
     }

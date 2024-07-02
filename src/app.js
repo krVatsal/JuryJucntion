@@ -26,12 +26,15 @@ app.use(express.static("public"))
 import clientRoute from "./routes/client.routes.js"
 import advocateRoute from "./routes/advocate.routes.js"
 import queryRoute from "./routes/query.routes.js"
-
+import questionRoute from "./routes/question.routes.js"
+import blogRoute from "./routes/blog.routes.js"
 
 
 app.use("/api/v1/client", clientRoute)
 app.use("/api/v1/advocate", advocateRoute)
 app.use("/api/v1/query", queryRoute)
+app.use("/api/v1/questions", questionRoute)
+app.use("/api/v1/blogs", blogRoute)
 
 //sample backend url
 //http://localhost:5217/api/v1/client/login

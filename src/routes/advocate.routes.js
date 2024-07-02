@@ -7,7 +7,10 @@ import { Router } from "express";
     changeAvatar,
     getDetails,
     applications,
-    statusUpdate
+    statusUpdate,
+    getQuestions,
+    postAnswer,
+    showAdvocates
  } from "../controllers/advocate.controller.js"
  import {upload} from "../middlewares/multer.middleware.js"
 import { verifyJWTadvocate } from "../middlewares/authAdvocate.middleware.js";
@@ -29,7 +32,10 @@ import { verifyJWTadvocate } from "../middlewares/authAdvocate.middleware.js";
  router.route("/changeAvatar").post(verifyJWTadvocate, changeAvatar)
  router.route("/details/:advocate").get(getDetails)
  router.route("/applications").get(applications)
+ router.route("/").get(getQuestions)
  router.route('/applications/:id/updateStatus').patch(statusUpdate)
+ router.route('/questions/:questionId/answer').patch(postAnswer)
+ router.route('/get').get(showAdvocates)
 
 
  export default router
